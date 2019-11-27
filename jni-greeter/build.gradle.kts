@@ -24,8 +24,6 @@ abstract class GenerateJniHeaders @Inject constructor(
     private val execOps: ExecOperations
 ) : DefaultTask() {
 
-    // javah ../../Greeter.java => .h
-
     @get:Classpath
     abstract val classpath: ConfigurableFileCollection
 
@@ -59,14 +57,11 @@ val generateJniHeaders by tasks.registering(GenerateJniHeaders::class) {
     outputDir.set(layout.buildDirectory.dir(name))
 }
 
-
 library {
     binaries.configureEach {
         compileTask.get().compilerArgs.addAll(compileTask.get().toolChain.map {
-            if (it is Gcc || it is Clang) {
-                return@map listOf("--std=c++11")
-            }
-            return@map listOf()
+            if (it is Gcc || it is Clang) listOf("--std=c++11")
+            else emptyList()
         })
         compileTask.get().compilerArgs.addAll(generateJniHeaders.map { listOf("-I", it.outputDir.get().asFile.canonicalPath) })
         compileTask.get().compilerArgs.addAll(compileTask.get().targetPlatform.map {
@@ -84,7 +79,7 @@ library {
 
 val buildJniWrapper by tasks.registering {}
 
-tasks.named("test", Test::class.java) {
+tasks.test {
     classpath += files("build/lib/main/debug").builtBy(library.developmentBinary.map { (it as CppSharedLibrary).linkTask })
     systemProperty("java.library.path", classpath.asPath)
 }

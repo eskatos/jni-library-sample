@@ -1,5 +1,5 @@
 plugins {
-    id("base")
+    base
 }
 
 subprojects {

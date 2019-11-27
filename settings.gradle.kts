@@ -1,4 +1,4 @@
-rootProject.name = 'jni-library-sample'
+rootProject.name = "jni-library-sample"
 
 include("native-greeter")
 include("jni-greeter")
