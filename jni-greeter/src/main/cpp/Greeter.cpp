@@ -1,10 +1,11 @@
 #include "com_example_greeter_Greeter.h"
 
 #include <cstring>
+#include <cstdlib>
 
-JNIEXPORT jstring JNICALL Java_com_example_greeter_Greeter_sayHello(JNIEnv *, jobject, jstring) {
-    char *buf = (char*)malloc(10);
-    strcpy(buf, "123456789");
-    jstring jstrBuf = (*env)->NewStringUTF(env, buf);
+JNIEXPORT jstring JNICALL Java_com_example_greeter_Greeter_sayHello(JNIEnv * env, jobject self, jstring name) {
+    char *buf = (char*)std::malloc(10);
+    std::strcpy(buf, "123456789");
+    auto jstrBuf = env->NewStringUTF(buf);
     return jstrBuf;
 }
