@@ -63,6 +63,7 @@ library {
             if (it is Gcc || it is Clang) listOf("--std=c++11")
             else emptyList()
         })
+        compileTask.get().dependsOn(generateJniHeaders)
         compileTask.get().compilerArgs.addAll(generateJniHeaders.map { listOf("-I", it.outputDir.get().asFile.canonicalPath) })
         compileTask.get().compilerArgs.addAll(compileTask.get().targetPlatform.map {
             val result = mutableListOf("-I", "${Jvm.current().javaHome.canonicalPath}/include")
