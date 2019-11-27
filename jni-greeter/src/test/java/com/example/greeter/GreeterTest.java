@@ -11,6 +11,6 @@ public class GreeterTest {
     public void testGreeter() {
         Greeter greeter = new Greeter();
         String greeting = greeter.sayHello("World");
-        assertThat(greeting, equalTo("Hello, World!"));
+        assertThat(greeting, equalTo("Bonjour, World!"));
     }
 }
