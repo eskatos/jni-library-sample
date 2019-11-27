@@ -19,42 +19,10 @@ dependencies {
     testImplementation("junit:junit:4.12")
 }
 
-
-abstract class GenerateJniHeaders @Inject constructor(
-    private val execOps: ExecOperations
-) : DefaultTask() {
-
-    @get:Classpath
-    abstract val classpath: ConfigurableFileCollection
-
-    @get:InputFiles
-    abstract val nativeClasses: ConfigurableFileCollection
-
-    @get:OutputDirectory
-    abstract val outputDir: DirectoryProperty
-
-    @TaskAction
-    fun action() {
-        val jvm = org.gradle.internal.jvm.Jvm.current()
-        val javac = jvm.javacExecutable
-        val out = outputDir.get().asFile
-        out.mkdirs()
-        execOps.exec {
-            setExecutable(javac)
-            args(
-                nativeClasses.files.joinToString(" ") { it.canonicalPath },
-                "-cp", classpath.asPath,
-                "-h", out.canonicalPath,
-                "-d", temporaryDir.canonicalPath // TODO prevent spurious .class generation
-            )
-        }
-    }
-}
-
-val generateJniHeaders by tasks.registering(GenerateJniHeaders::class) {
-    classpath.from(sourceSets.main.map { it.runtimeClasspath })
-    nativeClasses.from(sourceSets.main.map { it.allJava })
-    outputDir.set(layout.buildDirectory.dir(name))
+val jniHeaderDirectory = layout.buildDirectory.dir("jniHeaders")
+tasks.named<JavaCompile>("compileJava") {
+    outputs.dir(jniHeaderDirectory)
+    options.compilerArgumentProviders.add(CommandLineArgumentProvider { listOf("-h", jniHeaderDirectory.get().asFile.canonicalPath) })
 }
 
 library {
@@ -63,8 +31,8 @@ library {
             if (it is Gcc || it is Clang) listOf("--std=c++11")
             else emptyList()
         })
-        compileTask.get().dependsOn(generateJniHeaders)
-        compileTask.get().compilerArgs.addAll(generateJniHeaders.map { listOf("-I", it.outputDir.get().asFile.canonicalPath) })
+        compileTask.get().dependsOn("compileJava")
+        compileTask.get().compilerArgs.addAll(jniHeaderDirectory.map { listOf("-I", it.asFile.canonicalPath) })
         compileTask.get().compilerArgs.addAll(compileTask.get().targetPlatform.map {
             val result = mutableListOf("-I", "${Jvm.current().javaHome.canonicalPath}/include")
             if (it.operatingSystem.isMacOsX) {
