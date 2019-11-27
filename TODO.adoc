@@ -1,0 +1,6 @@
+= TODOs
+
+* Variants
+* Publishing
+* Split the build (maybe with included builds or publishing)
+* Generate lib loader
