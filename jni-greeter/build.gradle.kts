@@ -5,20 +5,21 @@ plugins {
     `java-library`
 }
 
-val jni by configurations.creating
+val jniImplementation by configurations.creating
 
 configurations.matching { it.name.startsWith("cppCompile") || it.name.startsWith("nativeLink") || it.name.startsWith("nativeRuntime") }.all {
-    extendsFrom(jni)
+    extendsFrom(jniImplementation)
 }
 
 dependencies {
 
-    jni(project(":native-greeter"))
+    jniImplementation(project(":native-greeter"))
 
     testImplementation("junit:junit:4.12")
 }
 
 val jniHeaderDirectory = layout.buildDirectory.dir("jniHeaders")
+
 tasks.compileJava {
     outputs.dir(jniHeaderDirectory)
     options.compilerArgumentProviders.add(CommandLineArgumentProvider { listOf("-h", jniHeaderDirectory.get().asFile.canonicalPath) })
@@ -30,24 +31,23 @@ library {
             if (it is Gcc || it is Clang) listOf("--std=c++11")
             else emptyList()
         })
+
         compileTask.get().dependsOn("compileJava")
         compileTask.get().compilerArgs.addAll(jniHeaderDirectory.map { listOf("-I", it.asFile.canonicalPath) })
         compileTask.get().compilerArgs.addAll(compileTask.get().targetPlatform.map {
-            val result = mutableListOf("-I", "${Jvm.current().javaHome.canonicalPath}/include")
-            if (it.operatingSystem.isMacOsX) {
-                result.addAll(listOf("-I", "${Jvm.current().javaHome.canonicalPath}/include/darwin"))
-            } else if (it.operatingSystem.isLinux) {
-                result.addAll(listOf("-I", "${Jvm.current().javaHome.canonicalPath}/include/linux"))
+            listOf("-I", "${Jvm.current().javaHome.canonicalPath}/include") + when {
+                it.operatingSystem.isMacOsX -> listOf("-I", "${Jvm.current().javaHome.canonicalPath}/include/darwin")
+                it.operatingSystem.isLinux -> listOf("-I", "${Jvm.current().javaHome.canonicalPath}/include/linux")
+                else -> emptyList()
             }
-
-            return@map result
         })
     }
 }
 
 tasks.test {
-    classpath += files("build/lib/main/debug").builtBy(library.developmentBinary.map { (it as CppSharedLibrary).linkTask })
-    systemProperty("java.library.path", classpath.asPath)
+    val sharedLib = library.developmentBinary.get() as CppSharedLibrary
+    dependsOn(sharedLib.linkTask)
+    systemProperty("java.library.path", sharedLib.linkFile.get().asFile.parentFile)
 }
 
 tasks.jar {
