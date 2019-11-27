@@ -1,0 +1,8 @@
+plugins {
+    id("java")
+    id("application")
+}
+
+application {
+    mainClassName = "com.example.app.Main"
+}
