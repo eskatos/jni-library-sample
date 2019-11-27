@@ -3,7 +3,7 @@ package com.example.greeter;
 public class Greeter {
 
     static {
-        System.loadLibrary("native-greeter");
+        System.loadLibrary("jni-greeter");
     }
 
     public native String sayHello(String name);

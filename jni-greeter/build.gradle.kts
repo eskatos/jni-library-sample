@@ -84,6 +84,11 @@ library {
 
 val buildJniWrapper by tasks.registering {}
 
+tasks.named("test", Test::class.java) {
+    classpath += files("build/lib/main/debug").builtBy(library.developmentBinary.map { (it as CppSharedLibrary).linkTask })
+    systemProperty("java.library.path", classpath.asPath)
+}
+
 sourceSets {
     main {
         resources {
