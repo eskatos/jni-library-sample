@@ -1,5 +1,4 @@
 import org.gradle.internal.jvm.Jvm
-import javax.inject.Inject
 
 plugins {
     `cpp-library`
@@ -20,7 +19,7 @@ dependencies {
 }
 
 val jniHeaderDirectory = layout.buildDirectory.dir("jniHeaders")
-tasks.named<JavaCompile>("compileJava") {
+tasks.compileJava {
     outputs.dir(jniHeaderDirectory)
     options.compilerArgumentProviders.add(CommandLineArgumentProvider { listOf("-h", jniHeaderDirectory.get().asFile.canonicalPath) })
 }
@@ -46,17 +45,11 @@ library {
     }
 }
 
-val buildJniWrapper by tasks.registering {}
-
 tasks.test {
     classpath += files("build/lib/main/debug").builtBy(library.developmentBinary.map { (it as CppSharedLibrary).linkTask })
     systemProperty("java.library.path", classpath.asPath)
 }
 
-sourceSets {
-    main {
-        resources {
-            srcDir(files(buildJniWrapper).builtBy(buildJniWrapper))
-        }
-    }
+tasks.jar {
+    from(library.developmentBinary.flatMap { (it as CppSharedLibrary).linkFile })
 }
