@@ -8,6 +8,10 @@ plugins {
 
 val jni by configurations.creating
 
+configurations.matching { it.name.startsWith("cppCompile") || it.name.startsWith("nativeLink") || it.name.startsWith("nativeRuntime") }.all {
+    extendsFrom(jni)
+}
+
 dependencies {
 
     jni(project(":native-greeter"))
