@@ -13,4 +13,11 @@ public class GreeterTest {
         String greeting = greeter.sayHello("World");
         assertThat(greeting, equalTo("Bonjour, World!"));
     }
+
+    @Test
+    public void testNullGreeter() {
+        Greeter greeter = new Greeter();
+        String greeting = greeter.sayHello(null);
+        assertThat(greeting, equalTo("name cannot be null"));
+    }
 }
