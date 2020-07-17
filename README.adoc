@@ -1,1 +1,8 @@
-= Java JNI & C++ in a single Gradle build
+= Java JNI & {cpp} in a single Gradle build
+
+This Java/{cpp} sample started as a hack day initiative at Gradle.
+It provided an excellent starting point to the community in showing how Gradle can build Java Native Interface (JNI) libraries.
+Since then, link:https://nokee.dev/[Nokee], lead by one of the original authors of the sample, took off. Nokee is a high-quality suite of Gradle plugins specifically geared toward native development with Gradle.
+It includes plugins for building JNI libraries with link:https://nokee.dev/docs/current/samples/java-c-jni-library/[C], link:https://nokee.dev/docs/current/samples/java-cpp-jni-library/[{cpp}], link:https://nokee.dev/docs/current/samples/java-objective-c-jni-library/[Objective-C], and link:https://nokee.dev/docs/current/samples/java-objective-cpp-jni-library/[Objective-{cpp}].
+Have a look at the link:https://nokee.dev/docs/current/samples/#sec:samples-jni[numerous samples already available] and the link:https://nokee.dev/docs/current/manual/building-jni-projects.html[documentation on building JNI projects].
+Please link:https://github.com/nokeedev/gradle-native/issues[open an issue on the Nokee project] for any missing features you need for your build.
